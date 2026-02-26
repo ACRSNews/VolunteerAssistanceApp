@@ -778,9 +778,16 @@
         <div class="listen-body">
           <div class="listen-lang-note" id="listenLangNote">Listening for: Simplified Chinese</div>
 
-          <button class="btn-listen" id="listenBtn" onclick="toggleListening()">
-            🎤 Tap to Listen
-          </button>
+          <!-- Two-button layout: Start + Stop always visible -->
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
+            <button class="btn-listen" id="listenBtn" onclick="startListening()" style="flex:1;">
+              🎤 Start Listening
+            </button>
+            <button id="stopListenBtn" onclick="stopListening()"
+              style="flex:0 0 auto;padding:14px 18px;border-radius:14px;border:none;background:#e9ebf3;color:#111;font-family:DM Sans,sans-serif;font-weight:700;font-size:15px;cursor:pointer;min-height:48px;">
+              ⏹ Stop
+            </button>
+          </div>
 
           <div class="transcript-box" id="transcriptBox">
             Volunteer's speech will appear here…
@@ -1075,13 +1082,15 @@ function selectLang(lang, btn) {
   updateConfirm();
   updateListenPanel();
   // Reset listen panel on language change
-  stopListening();
+  isListening = false;
+  if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
   capturedTranscript = '';
   document.getElementById('transcriptBox').className = 'transcript-box';
   document.getElementById('transcriptBox').textContent = "Volunteer's speech will appear here…";
   document.getElementById('translateBtn').style.display = 'none';
   document.getElementById('translationBox').classList.remove('visible');
   document.getElementById('translateStatus').textContent = '';
+  _setIdleBtn();
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────
@@ -1227,8 +1236,6 @@ const LANG_NAMES = {
   "fil-PH": "Tagalog"
 };
 
-// MyMemory free translation API (no key needed, 5000 chars/day free)
-// lang codes for MyMemory
 const MYMEMORY_CODES = {
   "zh-CN": "zh-CN",
   "zh-TW": "zh-TW",
@@ -1237,7 +1244,7 @@ const MYMEMORY_CODES = {
 };
 
 let recognition = null;
-let isListening = false;
+let isListening = false;        // true = we WANT to be listening
 let capturedTranscript = '';
 
 function updateListenPanel() {
@@ -1245,59 +1252,60 @@ function updateListenPanel() {
     'Listening for: ' + (LANG_NAMES[currentLang] || currentLang);
 }
 
-function toggleListening() {
+function startListening() {
   if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
     document.getElementById('transcriptBox').innerHTML =
-      '<span style="color:#c84b2f;">⚠️ Speech recognition is not supported in this browser. Try Chrome on Android or desktop.</span>';
+      '<span style="color:#c84b2f;">⚠️ Speech recognition requires Chrome on Android or desktop. It does not work in Safari.</span>';
     return;
   }
 
-  if (isListening) {
-    stopListening();
-    return;
+  // Kill any existing session cleanly first
+  if (recognition) {
+    try { recognition.abort(); } catch(e) {}
+    recognition = null;
   }
 
-  startListening();
-}
-
-function startListening() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = currentLang;
-  recognition.continuous = true;       // keep listening until manually stopped
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  const btn = document.getElementById('listenBtn');
+  // Reset UI
+  isListening = true;
+  capturedTranscript = '';
   const box = document.getElementById('transcriptBox');
   const tBtn = document.getElementById('translateBtn');
   const tBox = document.getElementById('translationBox');
   const status = document.getElementById('translateStatus');
+  const btn = document.getElementById('listenBtn');
 
-  // Reset state
   tBox.classList.remove('visible');
   tBtn.style.display = 'none';
-  capturedTranscript = '';
   status.textContent = '';
+  box.className = 'transcript-box';
+  box.textContent = '🎤 Speak now…';
+  btn.className = 'btn-listen listening';
+  btn.innerHTML = '🔴 Listening…';
 
-  recognition.onstart = () => {
-    isListening = true;
-    btn.className = 'btn-listen listening';
-    btn.innerHTML = '🔴 Listening… tap to stop';
-    box.className = 'transcript-box';
-    box.textContent = '🎤 Speak now — tap Stop when done…';
-  };
+  _spawnRecognition();
+}
+
+function _spawnRecognition() {
+  // Don't restart if we've been told to stop
+  if (!isListening) return;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = currentLang;
+  recognition.continuous = false;      // false is MORE reliable cross-browser
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  const box = document.getElementById('transcriptBox');
+  const btn = document.getElementById('listenBtn');
 
   recognition.onresult = (event) => {
     let interimText = '';
     let newFinal = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const t = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        newFinal += t + ' ';
-      } else {
-        interimText += t;
-      }
+      if (event.results[i].isFinal) newFinal += t + ' ';
+      else interimText += t;
     }
     if (newFinal) capturedTranscript += newFinal;
     box.className = 'transcript-box has-text';
@@ -1305,43 +1313,67 @@ function startListening() {
   };
 
   recognition.onerror = (e) => {
-    isListening = false;
-    btn.className = 'btn-listen';
-    btn.innerHTML = '🎤 Tap to Listen';
-    if (e.error === 'no-speech') {
-      status.textContent = 'No speech detected — please try again.';
-    } else if (e.error === 'not-allowed') {
-      box.innerHTML = '<span style="color:#c84b2f;">⚠️ Microphone access was denied. Please allow microphone access in your browser settings.</span>';
-    } else if (e.error !== 'aborted') {
-      status.textContent = '⚠️ Error: ' + e.error + '. Please try again.';
+    if (e.error === 'not-allowed') {
+      isListening = false;
+      box.innerHTML = '<span style="color:#c84b2f;">⚠️ Microphone access denied. Please allow microphone in your browser settings, then try again.</span>';
+      _setIdleBtn();
+      return;
     }
+    if (e.error === 'aborted') return; // we triggered this ourselves
+    // For no-speech and network errors, just let onend restart it
   };
 
   recognition.onend = () => {
-    isListening = false;
-    btn.className = 'btn-listen';
-
-    if (capturedTranscript.trim()) {
-      btn.innerHTML = '🎤 Listen Again';
-      tBtn.style.display = 'block';
-      status.textContent = '✅ Speech captured — tap "Translate to English" below.';
-    } else {
-      btn.innerHTML = '🎤 Tap to Listen';
-      status.textContent = 'Nothing captured. Tap to try again.';
+    if (!isListening) {
+      // User pressed Stop — finalise
+      _finishListening();
+      return;
     }
+    // Auto-restart — this is the key fix for mobile killing recognition
+    setTimeout(_spawnRecognition, 150);
   };
 
   try {
     recognition.start();
   } catch(e) {
-    status.textContent = '⚠️ Could not start microphone: ' + e.message;
+    // already started — wait and retry
+    setTimeout(_spawnRecognition, 300);
   }
 }
 
 function stopListening() {
+  isListening = false;
   if (recognition) {
     try { recognition.stop(); } catch(e) {}
   }
+  // If onend never fires (some browsers), finalise after short delay
+  setTimeout(() => {
+    if (!isListening) _finishListening();
+  }, 500);
+}
+
+function _finishListening() {
+  const btn = document.getElementById('listenBtn');
+  const tBtn = document.getElementById('translateBtn');
+  const box = document.getElementById('transcriptBox');
+  const status = document.getElementById('translateStatus');
+
+  _setIdleBtn();
+
+  if (capturedTranscript.trim()) {
+    tBtn.style.display = 'block';
+    status.textContent = '✅ Done — tap "Translate to English" below.';
+    box.className = 'transcript-box has-text';
+    box.textContent = capturedTranscript.trim();
+  } else {
+    status.textContent = 'Nothing captured. Make sure microphone is allowed and try again.';
+  }
+}
+
+function _setIdleBtn() {
+  const btn = document.getElementById('listenBtn');
+  btn.className = 'btn-listen';
+  btn.innerHTML = '🎤 Start Listening';
 }
 
 async function translateText() {
