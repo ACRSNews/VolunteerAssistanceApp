@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Volunteer Sign-Up Helper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf8f0;
+    --cream: #fff9ef;
+    --card: #ffffff;
+    --text: #1a1208;
+    --muted: #7a6a50;
+    --accent: #c84b2f;
+    --accent2: #2b6e4e;
+    --gold: #e8a020;
+    --soft: #f2ece0;
+    --border: #e8dece;
+    --shadow: 0 4px 24px rgba(60,30,5,0.09);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--accent2);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .header-icon {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  header p { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .card-header {
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--cream);
+  }
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .step-badge.green  { background: var(--accent2); color: #fff; }
+  .step-badge.red    { background: var(--accent); color: #fff; }
+  .step-badge.gold   { background: var(--gold); color: #fff; }
+  .step-badge.teal   { background: #2675a0; color: #fff; }
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .card-body { padding: 20px; }
+
+  /* ── LANGUAGE SELECTOR ── */
+  .lang-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .lang-btn {
+    border: 2px solid var(--border);
+    background: var(--soft);
+    border-radius: 14px;
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .lang-btn:hover { border-color: var(--accent2); background: #e8f5ee; }
+  .lang-btn.active { border-color: var(--accent2); background: #e8f5ee; box-shadow: 0 0 0 3px rgba(43,110,78,0.15); }
+  .lang-btn .lang-native { font-size: 18px; font-weight: 600; display: block; margin-bottom: 2px; }
+  .lang-btn .lang-english { font-size: 11px; color: var(--muted); }
+
+  .voice-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .btn-small {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px;
+  }
+  .btn-test { background: var(--accent2); color: #fff; }
+  .btn-test:hover { background: #235c40; }
+  .btn-stop { background: var(--soft); color: var(--text); border: 1px solid var(--border); }
+  .btn-stop:hover { background: #e8dece; }
+
+  /* ── PHRASE BUTTONS ── */
+  .phrase-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .phrase-btn {
+    display: flex;
+    align-items: stretch;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--card);
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .phrase-btn:hover { border-color: var(--accent2); box-shadow: 0 2px 10px rgba(43,110,78,0.12); }
+  .phrase-btn.speaking { border-color: var(--accent); background: #fff8f6; }
+
+  .phrase-icon {
+    width: 56px;
+    background: var(--soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .phrase-content {
+    padding: 12px 14px;
+    flex: 1;
+  }
+  .phrase-english {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+  .phrase-translated {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .phrase-speak-icon {
+    width: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  /* IMAGE SLOT */
+  .image-slot {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    color: var(--muted);
+    margin-top: 14px;
+    background: var(--soft);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .image-slot:hover { border-color: var(--accent2); }
+  .image-slot img { width: 100%; border-radius: 10px; object-fit: cover; max-height: 200px; display: block; }
+  .image-slot input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .image-placeholder { font-size: 30px; margin-bottom: 6px; }
+  .image-hint { font-size: 13px; }
+
+  /* ── LINKS ── */
+  .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .site-link {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 16px;
+    padding: 20px 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.15s;
+    box-shadow: 0 4px 14px rgba(200,75,47,0.3);
+  }
+  .site-link:hover { background: #a83920; transform: translateY(-2px); }
+  .site-link .link-icon { font-size: 28px; }
+  .site-link .link-label { font-family: 'Fraunces', serif; font-size: 18px; }
+  .site-link .link-url { font-size: 11px; opacity: 0.8; font-weight: 400; word-break: break-all; }
+
+  /* ── CONFIRMATION ── */
+  .confirm-text {
+    font-size: 20px;
+    line-height: 1.5;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--text);
+    background: var(--soft);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--gold);
+  }
+  .confirm-english {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-left: 4px;
+  }
+  .btn-speak-confirm {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: var(--gold);
+    color: #1a1208;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-speak-confirm:hover { background: #c88a10; }
+
+  /* ── ADD PHRASE PANEL ── */
+  .add-phrase-section { margin-top: 20px; }
+  .toggle-add-btn {
+    width: 100%;
+    background: none;
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .toggle-add-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .add-form {
+    display: none;
+    background: var(--soft);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 10px;
+    border: 1px solid var(--border);
+  }
+  .add-form.open { display: block; }
+  .form-grid { display: grid; gap: 10px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  label.form-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  input.form-input, select.form-select {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    width: 100%;
+  }
+  input.form-input:focus, select.form-select:focus { outline: none; border-color: var(--accent2); }
+  .btn-add-confirm {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.15s;
+  }
+  .btn-add-confirm:hover { background: #235c40; }
+
+  .hint-text { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+  .speaking-indicator {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes pulse { from { opacity:1; } to { opacity:0.2; } }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* ── LISTEN & TRANSLATE ── */
+  .listen-panel {
+    margin-top: 14px;
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    background: #f8f4ff;
+    border-color: #b8a4e8;
+  }
+  .listen-header {
+    background: #6c3fc4;
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .listen-header .listen-icon { font-size: 20px; }
+  .listen-body { padding: 16px; }
+  .listen-lang-note {
+    font-size: 12px;
+    color: #6c3fc4;
+    font-weight: 600;
+    margin-bottom: 10px;
+    background: #ede8ff;
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: inline-block;
+  }
+  .btn-listen {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: #6c3fc4;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .btn-listen:hover { background: #5530a0; }
+  .btn-listen.listening {
+    background: #c84b2f;
+    animation: listen-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes listen-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(200,75,47,0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(200,75,47,0); }
+  }
+  .transcript-box {
+    background: #fff;
+    border: 1.5px solid #b8a4e8;
+    border-radius: 12px;
+    padding: 14px;
+    min-height: 70px;
+    font-size: 16px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .transcript-box.has-text { color: #6c3fc4; font-style: normal; font-weight: 600; }
+  .translation-box {
+    background: #edfaf2;
+    border: 1.5px solid #7dc4a0;
+    border-radius: 12px;
+    padding: 14px;
+    min-height: 60px;
+    display: none;
+  }
+  .translation-box.visible { display: block; }
+  .translation-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent2);
+    margin-bottom: 6px;
+  }
+  .translation-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .translation-subtext {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .btn-translate {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.15s;
+    display: none;
+  }
+  .btn-translate.visible { display: block; }
+  .btn-translate:hover { background: #235c40; }
+  .translate-status {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px;
+    min-height: 18px;
+  }
+  /* ── PROGRAM CARDS ── */
+  .program-cards-wrapper {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .program-cards-wrapper.open { display: flex; }
+
+  .program-card {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    box-shadow: 0 2px 12px rgba(60,30,5,0.07);
+  }
+  .program-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .program-card-header .prog-icon { font-size: 26px; flex-shrink: 0; }
+  .program-card-header .prog-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .program-card-header .prog-chevron {
+    font-size: 14px;
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .program-card.expanded .prog-chevron { transform: rotate(180deg); }
+
+  .program-card-body {
+    display: none;
+    padding: 0 16px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .program-card.expanded .program-card-body { display: block; }
+
+  .prog-image-slot {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    margin: 14px 0 12px;
+    overflow: hidden;
+    position: relative;
+    background: var(--soft);
+    min-height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .prog-image-slot:hover { border-color: var(--accent2); }
+  .prog-image-slot input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .prog-image-slot img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
+  .prog-image-placeholder { display: flex; align-items: center; gap: 8px; padding: 14px; color: var(--muted); font-size: 13px; }
+
+  .prog-schedule {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin: 10px 0 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .prog-location {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 6px 0 10px;
+    line-height: 1.5;
+    display: flex; gap: 6px;
+  }
+  .prog-tasks {
+    background: var(--soft);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .prog-tasks-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .prog-task-item {
+    font-size: 14px;
+    color: var(--text);
+    padding: 4px 0;
+    display: flex; gap: 8px; align-items: flex-start;
+    line-height: 1.4;
+  }
+  .prog-task-item::before { content: '•'; color: var(--accent2); font-weight: 700; flex-shrink: 0; }
+
+  .prog-languages {
+    font-size: 13px;
+    color: #6c3fc4;
+    background: #f0ecff;
+    border-radius: 10px;
+    padding: 9px 12px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .btn-speak-program {
+    width: 100%;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.15s;
+    margin-top: 4px;
+  }
+  .btn-speak-program:hover { background: #235c40; }
+
+  .prog-color-kitchen { background: linear-gradient(135deg, #fff5e6, #ffe8c8); }
+  .prog-color-foodbank { background: linear-gradient(135deg, #e8f5ff, #c8e0ff); }
+  .prog-color-farm { background: linear-gradient(135deg, #e8f5ec, #c8ead0); }
+  .prog-color-messages { background: linear-gradient(135deg, #ffeef5, #ffd6e8); }
+
+    font-size: 13px;
+    color: #c84b2f;
+    background: #fff0ed;
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px solid #f4c4b8;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-icon">🤝</div>
+  <div>
+    <h1>Volunteer Sign-Up Helper</h1>
+    <p>Multilingual outreach tool · ACRS Community</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1: LANGUAGE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge green">1</div>
+      <div class="card-title">Choose Language / 选择语言 / Chọn ngôn ngữ / Pumili ng wika</div>
+    </div>
+    <div class="card-body">
+      <div class="lang-grid" id="langGrid">
+        <button class="lang-btn active" data-lang="zh-CN" onclick="selectLang('zh-CN', this)">
+          <span class="lang-native">简体中文</span>
+          <span class="lang-english">Simplified Chinese</span>
+        </button>
+        <button class="lang-btn" data-lang="zh-TW" onclick="selectLang('zh-TW', this)">
+          <span class="lang-native">繁體中文</span>
+          <span class="lang-english">Traditional Chinese</span>
+        </button>
+        <button class="lang-btn" data-lang="vi-VN" onclick="selectLang('vi-VN', this)">
+          <span class="lang-native">Tiếng Việt</span>
+          <span class="lang-english">Vietnamese</span>
+        </button>
+        <button class="lang-btn" data-lang="fil-PH" onclick="selectLang('fil-PH', this)">
+          <span class="lang-native">Tagalog</span>
+          <span class="lang-english">Filipino</span>
+        </button>
+      </div>
+
+      <div class="voice-row">
+        <button class="btn-small btn-test" onclick="testVoice()">🔊 Test Voice</button>
+        <button class="btn-small btn-stop" onclick="stopSpeaking()">⏹ Stop</button>
+      </div>
+      <p class="hint-text">Tip: Tap "Test Voice" first to activate audio on mobile devices</p>
+    </div>
+  </div>
+
+  <!-- STEP 2: PHRASES -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge red">2</div>
+      <div class="card-title">Tap a Phrase to Speak</div>
+    </div>
+    <div class="card-body">
+      <div class="phrase-list" id="phraseList"></div>
+
+      <!-- PROGRAM CARDS (shown when "which program" phrase is tapped) -->
+      <div class="program-cards-wrapper" id="programCards">
+
+        <!-- Club Bamboo Kitchen -->
+        <div class="program-card" id="card-kitchen">
+          <div class="program-card-header prog-color-kitchen" onclick="toggleCard('card-kitchen')">
+            <span class="prog-icon">🍜</span>
+            <span class="prog-title">Club Bamboo Kitchen</span>
+            <span class="prog-chevron">▼</span>
+          </div>
+          <div class="program-card-body">
+            <div class="prog-image-slot" id="imgslot-kitchen">
+              <input type="file" accept="image/*" onchange="handleProgImage(event,'imgslot-kitchen')">
+              <div class="prog-image-placeholder">📷 Tap to add a photo of the Kitchen</div>
+            </div>
+            <div class="prog-schedule">🕘 Mondays – Fridays, 9:00 AM – 12:00 PM</div>
+            <div class="prog-schedule" style="margin-top:2px;">🕛 Tuesdays, Thursdays & Fridays, 12:00 – 3:00 PM</div>
+            <div class="prog-location">📍 Located here at our main building, on the first floor — that way.</div>
+            <div class="prog-tasks">
+              <div class="prog-tasks-title">What you'll do</div>
+              <div class="prog-task-item">Prepping food to feed elders and our community</div>
+              <div class="prog-task-item">Washing dishes and handing meals to the community</div>
+            </div>
+            <div class="prog-languages">🗣️ Chef Keuan speaks Lao, Chinese, and Vietnamese. Other staff speak Cantonese and Mandarin.</div>
+            <button class="btn-speak-program" onclick="speakProgram('kitchen')">🔊 Speak this info</button>
+          </div>
+        </div>
+
+        <!-- Food Bank -->
+        <div class="program-card" id="card-foodbank">
+          <div class="program-card-header prog-color-foodbank" onclick="toggleCard('card-foodbank')">
+            <span class="prog-icon">🥫</span>
+            <span class="prog-title">Food Bank</span>
+            <span class="prog-chevron">▼</span>
+          </div>
+          <div class="program-card-body">
+            <div class="prog-image-slot" id="imgslot-foodbank">
+              <input type="file" accept="image/*" onchange="handleProgImage(event,'imgslot-foodbank')">
+              <div class="prog-image-placeholder">📷 Tap to add a photo of the Food Bank</div>
+            </div>
+            <div class="prog-schedule">🕘 Tuesday – Friday, 9:00 AM – 1:00 PM</div>
+            <div class="prog-location">📍 800 Weller St., Chinatown/International District</div>
+            <div class="prog-tasks">
+              <div class="prog-tasks-title">What you'll do</div>
+              <div class="prog-task-item">Prepping grocery bags for delivery</div>
+              <div class="prog-task-item">Assembling and packaging food</div>
+              <div class="prog-task-item">Loading and unloading food into delivery vehicles</div>
+              <div class="prog-task-item">Handing out food to clients (Wednesdays and Fridays)</div>
+            </div>
+            <button class="btn-speak-program" onclick="speakProgram('foodbank')">🔊 Speak this info</button>
+          </div>
+        </div>
+
+        <!-- Seattle Community Farm -->
+        <div class="program-card" id="card-farm">
+          <div class="program-card-header prog-color-farm" onclick="toggleCard('card-farm')">
+            <span class="prog-icon">🌿</span>
+            <span class="prog-title">Seattle Community Farm</span>
+            <span class="prog-chevron">▼</span>
+          </div>
+          <div class="program-card-body">
+            <div class="prog-image-slot" id="imgslot-farm">
+              <input type="file" accept="image/*" onchange="handleProgImage(event,'imgslot-farm')">
+              <div class="prog-image-placeholder">📷 Tap to add a photo of the Farm</div>
+            </div>
+            <div class="prog-schedule">🕘 Mondays, 9:30 AM – 4:00 PM (come anytime in between)</div>
+            <div class="prog-location">📍 Corner of S. Lilac St. & Martin Luther King Jr. Way S., behind Rainier Valley Housing — about a 7 minute walk down the street.</div>
+            <div class="prog-tasks">
+              <div class="prog-tasks-title">What you'll do</div>
+              <div class="prog-task-item">Weeding</div>
+            </div>
+            <div class="prog-languages">🗣️ Ms. Yu Chen, who manages the farm, speaks Cantonese, some Vietnamese, Taishanese, Mandarin, and other Chinese dialects.</div>
+            <button class="btn-speak-program" onclick="speakProgram('farm')">🔊 Speak this info</button>
+          </div>
+        </div>
+
+        <!-- Caring Messages -->
+        <div class="program-card" id="card-messages">
+          <div class="program-card-header prog-color-messages" onclick="toggleCard('card-messages')">
+            <span class="prog-icon">💌</span>
+            <span class="prog-title">Caring Messages</span>
+            <span class="prog-chevron">▼</span>
+          </div>
+          <div class="program-card-body">
+            <div class="prog-image-slot" id="imgslot-messages">
+              <input type="file" accept="image/*" onchange="handleProgImage(event,'imgslot-messages')">
+              <div class="prog-image-placeholder">📷 Tap to add a photo</div>
+            </div>
+            <div class="prog-schedule">🕐 Timing is flexible</div>
+            <div class="prog-location">💛 Write messages to our elders that will be distributed at our food bank.</div>
+            <button class="btn-speak-program" onclick="speakProgram('messages')">🔊 Speak this info</button>
+          </div>
+        </div>
+
+      </div><!-- end program-cards-wrapper -->
+      <div class="image-slot" id="imageSlot">
+        <input type="file" accept="image/*" onchange="handleImageUpload(event)" title="Upload image">
+        <div id="imageSlotContent">
+          <div class="image-placeholder">🖼️</div>
+          <div class="image-hint">Optional: tap to add a photo or visual aid</div>
+        </div>
+      </div>
+
+      <!-- LISTEN & TRANSLATE -->
+      <div class="listen-panel" id="listenPanel">
+        <div class="listen-header">
+          <span class="listen-icon">👂</span>
+          <div>
+            <div>Listen &amp; Translate to English</div>
+            <div style="font-weight:400;font-size:12px;opacity:0.85;">Let the volunteer speak — see it in English</div>
+          </div>
+        </div>
+        <div class="listen-body">
+          <div class="listen-lang-note" id="listenLangNote">Listening for: Simplified Chinese</div>
+
+          <button class="btn-listen" id="listenBtn" onclick="toggleListening()">
+            🎤 Tap to Listen
+          </button>
+
+          <div class="transcript-box" id="transcriptBox">
+            Volunteer's speech will appear here…
+          </div>
+
+          <button class="btn-translate" id="translateBtn" onclick="translateText()">
+            🌐 Translate to English
+          </button>
+
+          <div class="translation-box" id="translationBox">
+            <div class="translation-label">🇺🇸 English Translation</div>
+            <div class="translation-text" id="translationText"></div>
+            <div class="translation-subtext">Translated from <span id="translationFrom"></span></div>
+          </div>
+
+          <div class="translate-status" id="translateStatus"></div>
+        </div>
+      </div>
+
+      <!-- ADD PHRASE -->
+      <div class="add-phrase-section">
+        <button class="toggle-add-btn" onclick="toggleAddForm()">➕ Add a New Phrase</button>
+        <div class="add-form" id="addForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">English (label)</label>
+              <input class="form-input" id="new_english" type="text" placeholder="e.g. Do you speak English?" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Icon (emoji)</label>
+              <input class="form-input" id="new_icon" type="text" placeholder="🗣️" maxlength="2" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">简体中文</label>
+                <input class="form-input" id="new_zhCN" type="text" placeholder="Translation…" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">繁體中文</label>
+                <input class="form-input" id="new_zhTW" type="text" placeholder="Translation…" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Tiếng Việt</label>
+                <input class="form-input" id="new_vi" type="text" placeholder="Translation…" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tagalog</label>
+                <input class="form-input" id="new_fil" type="text" placeholder="Translation…" />
+              </div>
+            </div>
+          </div>
+          <button class="btn-add-confirm" onclick="addPhrase()">✅ Add Phrase</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: SIGN-UP LINKS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge teal">3</div>
+      <div class="card-title">Open Sign-Up Links</div>
+    </div>
+    <div class="card-body">
+      <div class="link-grid">
+        <a class="site-link" href="https://www.bit.ly/ACRSFOODBANKSHIFTS" target="_blank" rel="noopener">
+          <span class="link-icon">🥫</span>
+          <span class="link-label">Food Bank</span>
+          <span class="link-url">bit.ly/ACRSFOODBANKSHIFTS</span>
+        </a>
+        <a class="site-link" href="https://www.bit.ly/CBKITCHENSHIFTS" target="_blank" rel="noopener">
+          <span class="link-icon">🍲</span>
+          <span class="link-label">Kitchen</span>
+          <span class="link-url">bit.ly/CBKITCHENSHIFTS</span>
+        </a>
+      </div>
+      <p class="hint-text" style="margin-top:12px;">If links don't open, copy the URL into your browser</p>
+    </div>
+  </div>
+
+  <!-- STEP 4: CONFIRMATION -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge gold">4</div>
+      <div class="card-title">Confirmation Message</div>
+    </div>
+    <div class="card-body">
+      <p class="confirm-english">
+        "Great! Next, open the link to sign up. If you don't have an email, that's okay — we can help you."
+      </p>
+      <div class="confirm-text" id="confirmText"></div>
+      <button class="btn-speak-confirm" onclick="speakConfirm()">
+        🔊 Speak Confirmation
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const LANGS = {
+  "zh-CN": "简体中文",
+  "zh-TW": "繁體中文",
+  "vi-VN": "Tiếng Việt",
+  "fil-PH": "Tagalog"
+};
+
+let phrases = [
+  {
+    key: "want_volunteer",
+    label: "Would you like to volunteer?",
+    icon: "🤝",
+    t: {
+      // Natural, warm — direct and friendly for all dialects
+      "zh-CN": "你有兴趣来做义工吗？",
+      // zh-TW: 義工 is the natural Taiwan term; 你有 is warmer than 你想
+      "zh-TW": "你有興趣來當義工嗎？",
+      // Warmer: "Bạn có muốn" → thêm "tham gia cùng chúng tôi" sounds inviting
+      "vi-VN": "Bạn có muốn làm tình nguyện viên cùng chúng tôi không ạ?",
+      // Natural Tagalog — "kami" adds warmth
+      "fil-PH": "Gusto mo bang maging volunteer namin?"
+    }
+  },
+  {
+    key: "which_program",
+    label: "Where/How would you like to volunteer with us?",
+    icon: "🌱",
+    showPrograms: true,
+    t: {
+      // More natural spoken Mandarin — 想在哪里 is colloquial
+      "zh-CN": "你想在哪里跟我们一起做义工呢？",
+      // Natural Taiwan phrasing
+      "zh-TW": "你想在哪裡跟我們一起當義工呢？",
+      // Spoken Vietnamese — "tham gia tình nguyện ở đâu" flows naturally
+      "vi-VN": "Bạn muốn tham gia tình nguyện ở đâu với chúng tôi ạ?",
+      // Natural — "saan" placement is correct
+      "fil-PH": "Saan mo gustong mag-volunteer kasama kami?"
+    }
+  },
+  {
+    key: "have_email",
+    label: "Do you have an email address?",
+    icon: "📧",
+    t: {
+      // 邮箱 is the everyday word; 电子邮件 sounds overly formal in speech
+      "zh-CN": "你有邮箱吗？",
+      // Taiwan: 電子郵件 is standard; 信箱 also common but email is understood
+      "zh-TW": "你有電子郵件信箱嗎？",
+      // Casual spoken Vietnamese drops "địa chỉ" — just "email" is natural
+      "vi-VN": "Bạn có email không ạ?",
+      // Perfect as-is
+      "fil-PH": "May email address ka ba?"
+    }
+  },
+  {
+    key: "what_email",
+    label: "What is your email address?",
+    icon: "✉️",
+    t: {
+      // 邮箱地址 is natural spoken Mandarin
+      "zh-CN": "你的邮箱地址是什么？",
+      "zh-TW": "你的電子郵件信箱是什麼？",
+      // "Email của bạn là gì" is perfectly natural
+      "vi-VN": "Email của bạn là gì vậy?",
+      // "vậy" adds natural conversational softness
+      "fil-PH": "Ano ang iyong email address?"
+    }
+  },
+  {
+    key: "no_email",
+    label: "No email? No problem — we can help. What days at 9:00 am can you meet?",
+    icon: "🙌",
+    t: {
+      // Warm, natural Mandarin — 没有也没关系 is very colloquial
+      "zh-CN": "没有邮箱也完全没关系，我们可以帮你。你哪几天早上九点有空来见我？",
+      "zh-TW": "沒有電子郵件也完全沒關係，我們可以幫你。你哪幾天早上九點有空來見我？",
+      // Natural Vietnamese — "cũng được" is very colloquial for "it's okay"
+      "vi-VN": "Không có email cũng được, không sao hết! Chúng tôi sẽ giúp bạn. Bạn có thể gặp tôi lúc chín giờ sáng vào những ngày nào?",
+      // Natural Tagalog — "wag mag-alala" adds warmth
+      "fil-PH": "Wag mag-alala kung wala kang email — tulungan ka namin. Anong araw ka pwedeng makipagkita sa amin ng 9 ng umaga?"
+    }
+  }
+];
+
+const CONFIRM = {
+  // Natural, warm Mandarin closing
+  "zh-CN": "太好了！接下来请打开链接报名。没有邮箱的话也完全没关系，我们会帮你的。",
+  "zh-TW": "太好了！接下來請打開連結報名。沒有電子郵件也完全沒關係，我們會幫你的。",
+  // "Hay quá!" is very natural Vietnamese exclamation; "đừng lo" = don't worry, very warm
+  "vi-VN": "Hay quá! Bây giờ bạn mở đường link để đăng ký nhé. Nếu không có email thì đừng lo — chúng tôi sẽ giúp bạn.",
+  // "Ang galing!" is natural Tagalog praise; "huwag mag-alala" = don't worry
+  "fil-PH": "Ang galing! Buksan mo na ang link para mag-sign up. Kung wala kang email, huwag mag-alala — tutulungan ka namin."
+};
+
+const TEST_PHRASES = {
+  "zh-CN": "你好！欢迎！",
+  "zh-TW": "你好！歡迎！",
+  "vi-VN": "Xin chào! Chào mừng bạn!",
+  "fil-PH": "Kumusta! Maligayang pagdating!"
+};
+
+let currentLang = "zh-CN";
+let speakingKey = null;
+
+// ── SPEECH ────────────────────────────────────────────────────────────
+function chooseVoice(lang) {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  // For Vietnamese: prefer Google vi-VN, then any vi voice
+  if (lang === 'vi-VN') {
+    const googleVi = voices.find(v => v.lang === 'vi-VN' && v.name.includes('Google'));
+    if (googleVi) return googleVi;
+    const anyVi = voices.find(v => v.lang === 'vi-VN' || v.lang === 'vi');
+    if (anyVi) return anyVi;
+  }
+
+  // For Chinese: prefer Google voices, avoid robot-sounding ones
+  if (lang === 'zh-CN' || lang === 'zh-TW') {
+    const googleZh = voices.find(v => v.lang.startsWith(lang.split('-')[0]) && v.name.includes('Google'));
+    if (googleZh) return googleZh;
+  }
+
+  const exact = voices.find(v => v.lang.toLowerCase() === lang.toLowerCase());
+  if (exact) return exact;
+  const prefix = lang.split('-')[0].toLowerCase();
+  return voices.find(v => v.lang.toLowerCase().startsWith(prefix)) || null;
+}
+
+function speak(text, lang, key) {
+  if (!('speechSynthesis' in window)) { alert("Text-to-Speech not supported in this browser."); return; }
+  stopSpeaking();
+  speakingKey = key || null;
+  renderPhrases();
+
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+
+  // Vietnamese sounds much more natural at slightly slower rate
+  if (lang === 'vi-VN') {
+    utter.rate = 0.88;
+    utter.pitch = 1.05;
+  } else if (lang === 'zh-CN' || lang === 'zh-TW') {
+    utter.rate = 0.92;
+  } else {
+    utter.rate = 0.95;
+  }
+
+  // Wait for voices to load if needed
+  const setVoiceAndSpeak = () => {
+    const voice = chooseVoice(lang);
+    if (voice) utter.voice = voice;
+    utter.onend = () => { speakingKey = null; renderPhrases(); };
+    utter.onerror = () => { speakingKey = null; renderPhrases(); };
+    window.speechSynthesis.speak(utter);
+  };
+
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    setVoiceAndSpeak();
+  } else {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      setVoiceAndSpeak();
+    };
+  }
+}
+
+function stopSpeaking() {
+  try { window.speechSynthesis.cancel(); } catch(e){}
+  speakingKey = null;
+  renderPhrases();
+}
+
+function testVoice() {
+  speak(TEST_PHRASES[currentLang], currentLang, '__test__');
+}
+
+function speakConfirm() {
+  speak(CONFIRM[currentLang], currentLang, '__confirm__');
+}
+
+// ── LANGUAGE ──────────────────────────────────────────────────────────
+function selectLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPhrases();
+  updateConfirm();
+  updateListenPanel();
+  // Reset listen panel on language change
+  stopListening();
+  capturedTranscript = '';
+  document.getElementById('transcriptBox').className = 'transcript-box';
+  document.getElementById('transcriptBox').textContent = "Volunteer's speech will appear here…";
+  document.getElementById('translateBtn').style.display = 'none';
+  document.getElementById('translationBox').classList.remove('visible');
+  document.getElementById('translateStatus').textContent = '';
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────
+function renderPhrases() {
+  const list = document.getElementById('phraseList');
+  list.innerHTML = '';
+
+  phrases.forEach((p, idx) => {
+    const isSpeaking = speakingKey === p.key;
+    const btn = document.createElement('button');
+    btn.className = 'phrase-btn' + (isSpeaking ? ' speaking' : '');
+    btn.setAttribute('aria-label', `Speak: ${p.label}`);
+    btn.onclick = () => {
+      speak(p.t[currentLang] || p.label, currentLang, p.key);
+      if (p.showPrograms) {
+        const wrapper = document.getElementById('programCards');
+        wrapper.classList.add('open');
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+
+    btn.innerHTML = `
+      <div class="phrase-icon">${p.icon || '💬'}</div>
+      <div class="phrase-content">
+        <div class="phrase-english">${p.label}</div>
+        <div class="phrase-translated">${p.t[currentLang] || '<em style="color:#aaa">No translation</em>'}</div>
+      </div>
+      <div class="phrase-speak-icon">${isSpeaking ? '<span class="speaking-indicator"></span>' : '🔊'}</div>
+    `;
+    list.appendChild(btn);
+  });
+}
+
+function updateConfirm() {
+  document.getElementById('confirmText').textContent = CONFIRM[currentLang] || '';
+}
+
+// ── ADD PHRASE ─────────────────────────────────────────────────────────
+function toggleAddForm() {
+  document.getElementById('addForm').classList.toggle('open');
+}
+
+function addPhrase() {
+  const english = document.getElementById('new_english').value.trim();
+  if (!english) { alert('Please enter an English label.'); return; }
+
+  const icon = document.getElementById('new_icon').value.trim() || '💬';
+  const zhCN = document.getElementById('new_zhCN').value.trim();
+  const zhTW = document.getElementById('new_zhTW').value.trim();
+  const vi   = document.getElementById('new_vi').value.trim();
+  const fil  = document.getElementById('new_fil').value.trim();
+
+  phrases.push({
+    key: 'custom_' + Date.now(),
+    label: english,
+    icon: icon,
+    t: { "zh-CN": zhCN, "zh-TW": zhTW, "vi-VN": vi, "fil-PH": fil }
+  });
+
+  // Clear
+  ['new_english','new_icon','new_zhCN','new_zhTW','new_vi','new_fil'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  renderPhrases();
+  toggleAddForm();
+}
+
+// ── IMAGE UPLOAD (general) ───────────────────────────────────────────────
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const slot = document.getElementById('imageSlotContent');
+    slot.innerHTML = `<img src="${e.target.result}" alt="Uploaded visual aid" />
+      <div class="image-hint" style="margin-top:8px;">Tap to change image</div>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── PROGRAM CARDS ──────────────────────────────────────────────────────
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('expanded');
+}
+
+function handleProgImage(event, slotId) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const slot = document.getElementById(slotId);
+    slot.innerHTML = `<img src="${e.target.result}" alt="Program photo" /><input type="file" accept="image/*" onchange="handleProgImage(event,'${slotId}')" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Program spoken descriptions per language
+const PROGRAM_SPEAK = {
+  kitchen: {
+    "zh-CN": "竹园厨房。时间是周一到周五早上九点到十二点，周二、周四、周五下午十二点到三点。就在这里我们主楼的一楼，往那个方向走。你会帮忙备餐，照顾我们的长辈和社区成员，洗碗，还有给大家分发餐食。厨师Keuan会说老挝语、中文和越南语，其他工作人员会说广东话和普通话。",
+    "zh-TW": "竹園廚房。時間是週一到週五早上九點到十二點，週二、週四、週五下午十二點到三點。就在這裡我們主樓的一樓，往那個方向走。你會幫忙備餐，照顧我們的長輩和社區成員，洗碗，還有給大家分發餐食。廚師Keuan會說寮語、中文和越南語，其他工作人員會說廣東話和國語。",
+    // Natural spoken Vietnamese — conversational, warm, uses "mình" register
+    "vi-VN": "Bếp Club Bamboo nha. Mở cửa từ thứ Hai đến thứ Sáu, chín giờ đến mười hai giờ trưa. Thứ Ba, thứ Năm và thứ Sáu thì thêm buổi chiều từ mười hai giờ đến ba giờ. Ở ngay đây, tầng một của tòa nhà chính, đi theo hướng đó. Bạn sẽ phụ nấu ăn cho các cụ già và cộng đồng, rửa chén bát, và phát bữa ăn. Anh đầu bếp Keuan nói được tiếng Lào, tiếng Trung và tiếng Việt. Các nhân viên khác nói tiếng Quảng và tiếng Phổ thông.",
+    // Natural Tagalog — "po" adds respect, natural flow
+    "fil-PH": "Club Bamboo Kitchen po. Bukas Lunes hanggang Biyernes, ika-siyam ng umaga hanggang ika-labindalawa ng tanghali. Martes, Huwebes at Biyernes, dagdag pa ang hapon mula ika-labindalawa hanggang ika-tatlo. Nandito po mismo sa unang palapag ng aming pangunahing gusali, sa gawi noon. Magtutulungan kayo sa paghahanda ng pagkain para sa mga lolo lola at komunidad, paghuhugas ng pinggan, at pamimigay ng pagkain. Si Chef Keuan ay nagsasalita ng Lao, Tsino, at Vietnamese. Ang iba pang mga kawani ay nagsasalita ng Cantonese at Mandarin."
+  },
+  foodbank: {
+    "zh-CN": "食物银行。时间是周二到周五早上九点到下午一点。地址在唐人街国际区威勒街八百号。你会帮忙准备外送的食品袋、包装食物、把食物装上和卸下配送车，周三和周五还会直接把食物发给来取的居民。",
+    "zh-TW": "食物銀行。時間是週二到週五早上九點到下午一點。地址在唐人街國際區威勒街八百號。你會幫忙準備外送的食品袋、包裝食物、把食物裝上和卸下配送車，週三和週五還會直接把食物發給來領的居民。",
+    // Natural — "bà con" is warm Vietnamese for community members
+    "vi-VN": "Ngân hàng thực phẩm nha. Mở cửa từ thứ Ba đến thứ Sáu, chín giờ sáng đến một giờ chiều. Địa chỉ là số tám trăm đường Weller, khu Chinatown và International District. Bạn sẽ đóng gói túi thực phẩm để giao cho bà con, sắp xếp và bọc thực phẩm, bốc vác lên xuống xe giao hàng. Thứ Tư và thứ Sáu thì phát trực tiếp thực phẩm cho khách hàng.",
+    "fil-PH": "Food Bank po. Bukas Martes hanggang Biyernes, ika-siyam ng umaga hanggang ika-isa ng hapon. Nasa 800 Weller Street po, sa Chinatown at International District. Maghahanda kayo ng grocery bags para sa delivery, mag-aayos at mag-iimpake ng pagkain, at mag-lo-load at mag-u-unload ng pagkain sa mga delivery vehicle. Tuwing Miyerkules at Biyernes, mamimigay din kayo ng pagkain direkta sa mga kliyente."
+  },
+  farm: {
+    "zh-CN": "西雅图社区农场。时间是每周一早上九点半到下午四点，中间随时来都可以。地点在南丁香街和马丁路德金大道南的交叉口，雷尼尔谷住宅后面，从这里走路大约七分钟。你会帮忙除草。农场经理余晨女士会说广东话、一点越南话、台山话、普通话，还有其他中国方言。",
+    "zh-TW": "西雅圖社區農場。時間是每週一早上九點半到下午四點，中間隨時來都可以。地點在南丁香街和馬丁路德金大道南的交叉口，雷尼爾谷住宅後面，從這裡走路大約七分鐘。你會幫忙除草。農場主任余晨女士會說廣東話、一點越南話、台山話、國語，還有其他中文方言。",
+    // "tha hồ đến" = very natural Vietnamese "come anytime you like"
+    "vi-VN": "Nông trại cộng đồng Seattle nha. Thứ Hai hàng tuần, từ chín rưỡi sáng đến bốn giờ chiều, bạn cứ thoải mái đến lúc nào cũng được trong khoảng thời gian đó. Nông trại ở góc đường South Lilac và đường Martin Luther King Junior Way South, ngay phía sau khu nhà ở Rainier Valley — đi bộ khoảng bảy phút từ đây. Bạn sẽ phụ nhổ cỏ. Chị Yu Chen quản lý nông trại, nói được tiếng Quảng, một chút tiếng Việt, tiếng Đài Sơn, tiếng Phổ thông, và nhiều phương ngữ Trung Hoa khác.",
+    "fil-PH": "Seattle Community Farm po. Tuwing Lunes, mula ika-siyam at kalahati ng umaga hanggang ika-apat ng hapon — pumunta ka anumang oras sa pagitan nito. Nasa kanto ng S. Lilac at Martin Luther King Junior Way South, sa likod ng Rainier Valley Housing — mga pitong minutong lakad mula dito. Magdadamo ka roon. Si Ms. Yu Chen, ang nagpapatakbo ng farm, ay nagsasalita ng Cantonese, kaunting Vietnamese, Taishanese, Mandarin, at iba pang mga dayalekto ng Tsino."
+  },
+  messages: {
+    "zh-CN": "爱心留言活动。时间很灵活，随时都可以参与。请你为我们的长辈写下温暖的话语，这些信息会在我们食物银行分发的时候送到他们手中。",
+    "zh-TW": "愛心留言活動。時間很彈性，隨時都可以參與。請你為我們的長輩寫下溫暖的話語，這些信息會在我們食物銀行發放的時候送到他們手中。",
+    // Warm Vietnamese — "lời nhắn yêu thương" is very natural
+    "vi-VN": "Chương trình Lời Nhắn Yêu Thương. Thời gian rất linh hoạt, bạn có thể tham gia bất cứ lúc nào thuận tiện. Bạn sẽ viết những lời nhắn ấm áp gửi đến các cụ già của chúng tôi — những lá thư này sẽ được trao tận tay các cụ tại ngân hàng thực phẩm.",
+    "fil-PH": "Caring Messages po. Flexible ang oras, pwede kang lumahok kahit kailan ka makakarating. Sumulat ka ng mga maiinit na mensahe para sa aming mga lolo at lola — ipamamahagi ang mga ito sa kanila sa aming food bank."
+  }
+};
+
+function speakProgram(key) {
+  const text = PROGRAM_SPEAK[key]?.[currentLang];
+  if (text) speak(text, currentLang, '__prog_' + key);
+  else alert('No translation available for this language yet.');
+}
+
+// ── LISTEN & TRANSLATE ────────────────────────────────────────────────
+const LANG_NAMES = {
+  "zh-CN": "Simplified Chinese",
+  "zh-TW": "Traditional Chinese",
+  "vi-VN": "Vietnamese",
+  "fil-PH": "Tagalog"
+};
+
+// MyMemory free translation API (no key needed, 5000 chars/day free)
+// lang codes for MyMemory
+const MYMEMORY_CODES = {
+  "zh-CN": "zh-CN",
+  "zh-TW": "zh-TW",
+  "vi-VN": "vi",
+  "fil-PH": "tl"
+};
+
+let recognition = null;
+let isListening = false;
+let capturedTranscript = '';
+
+function updateListenPanel() {
+  document.getElementById('listenLangNote').textContent =
+    'Listening for: ' + (LANG_NAMES[currentLang] || currentLang);
+}
+
+function toggleListening() {
+  if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+    document.getElementById('transcriptBox').innerHTML =
+      '<span style="color:#c84b2f;">⚠️ Speech recognition is not supported in this browser. Try Chrome on Android or desktop.</span>';
+    return;
+  }
+
+  if (isListening) {
+    stopListening();
+    return;
+  }
+
+  startListening();
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = currentLang;
+  recognition.continuous = true;       // keep listening until manually stopped
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  const btn = document.getElementById('listenBtn');
+  const box = document.getElementById('transcriptBox');
+  const tBtn = document.getElementById('translateBtn');
+  const tBox = document.getElementById('translationBox');
+  const status = document.getElementById('translateStatus');
+
+  // Reset state
+  tBox.classList.remove('visible');
+  tBtn.style.display = 'none';
+  capturedTranscript = '';
+  status.textContent = '';
+
+  recognition.onstart = () => {
+    isListening = true;
+    btn.className = 'btn-listen listening';
+    btn.innerHTML = '🔴 Listening… tap to stop';
+    box.className = 'transcript-box';
+    box.textContent = '🎤 Speak now — tap Stop when done…';
+  };
+
+  recognition.onresult = (event) => {
+    let interimText = '';
+    let newFinal = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        newFinal += t + ' ';
+      } else {
+        interimText += t;
+      }
+    }
+    if (newFinal) capturedTranscript += newFinal;
+    box.className = 'transcript-box has-text';
+    box.textContent = (capturedTranscript + interimText).trim() || '…';
+  };
+
+  recognition.onerror = (e) => {
+    isListening = false;
+    btn.className = 'btn-listen';
+    btn.innerHTML = '🎤 Tap to Listen';
+    if (e.error === 'no-speech') {
+      status.textContent = 'No speech detected — please try again.';
+    } else if (e.error === 'not-allowed') {
+      box.innerHTML = '<span style="color:#c84b2f;">⚠️ Microphone access was denied. Please allow microphone access in your browser settings.</span>';
+    } else if (e.error !== 'aborted') {
+      status.textContent = '⚠️ Error: ' + e.error + '. Please try again.';
+    }
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    btn.className = 'btn-listen';
+
+    if (capturedTranscript.trim()) {
+      btn.innerHTML = '🎤 Listen Again';
+      tBtn.style.display = 'block';
+      status.textContent = '✅ Speech captured — tap "Translate to English" below.';
+    } else {
+      btn.innerHTML = '🎤 Tap to Listen';
+      status.textContent = 'Nothing captured. Tap to try again.';
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch(e) {
+    status.textContent = '⚠️ Could not start microphone: ' + e.message;
+  }
+}
+
+function stopListening() {
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+}
+
+async function translateText() {
+  if (!capturedTranscript.trim()) return;
+
+  const status = document.getElementById('translateStatus');
+  const tBox = document.getElementById('translationBox');
+  const tText = document.getElementById('translationText');
+  const tFrom = document.getElementById('translationFrom');
+  const tBtn = document.getElementById('translateBtn');
+
+  status.textContent = '⏳ Translating…';
+  tBtn.disabled = true;
+  tBox.classList.remove('visible');
+
+  const langName = LANG_NAMES[currentLang] || currentLang;
+  const textToTranslate = capturedTranscript.trim();
+
+  // Try Claude API first (most accurate for these languages)
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `Translate the following ${langName} text to natural English. Return ONLY the English translation, nothing else:\n\n${textToTranslate}`
+        }]
+      })
+    });
+    const data = await response.json();
+    const translation = data?.content?.[0]?.text?.trim();
+
+    if (translation && !translation.includes('error')) {
+      tText.textContent = translation;
+      tFrom.textContent = langName;
+      tBox.classList.add('visible');
+      status.textContent = '✅ Translation complete.';
+      tBtn.disabled = false;
+      return;
+    }
+  } catch(e) {
+    // fall through to MyMemory
+  }
+
+  // Fallback: MyMemory free API
+  try {
+    const sourceLang = MYMEMORY_CODES[currentLang] || 'zh-CN';
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=${sourceLang}|en`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const translation = data?.responseData?.translatedText;
+
+    if (translation && data.responseStatus === 200) {
+      tText.textContent = translation;
+      tFrom.textContent = langName;
+      tBox.classList.add('visible');
+      status.textContent = '✅ Translation complete.';
+    } else {
+      status.textContent = '⚠️ Could not translate. Please check your internet connection.';
+    }
+  } catch (err) {
+    status.textContent = '⚠️ Translation unavailable. Please check your connection.';
+  }
+
+  tBtn.disabled = false;
+}
+
+// ── VOICES ASYNC ───────────────────────────────────────────────────────
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = renderPhrases;
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+renderPhrases();
+updateConfirm();
+updateListenPanel();
+</script>
+</body>
+</html>
